@@ -16,10 +16,25 @@ public:
 	Customer arrCustomerQueue[5];	// Each cashier has a queue array of customer objects.
 	CashierNode *pNext;				// A pointer to the next cashier object in the linked list.
 
-	// Method to add customers to the checkout lines.
-	void addCustomer()
+	// Method's to add customers to the checkout lines.
+	// Accepts the cashierNum from which the method
+	// should enqueue or dequeue.
+	void enqueueCustomer(int cn)
 	{
 		// Todo
+	}
+	void dequeueCustomer(int cn)
+	{
+		// Todo
+	}
+	// Method to return the number of customers current in a node
+	// Accepts the cashierNum for which the method returns the
+	// number of customers in its queue.
+	int getNumCustomers(int cn)
+	{
+		// Todo
+
+		return numCustomers;
 	}
 };
 class CashierList {					// A list of cashier objects as a linked list.
@@ -42,6 +57,7 @@ public:
 			pHead = pTemp;
 			pTail = pTemp;
 			pTemp = NULL;
+
 		}
 		else                        // Otherwise, place the new node after the previous tail.
 		{
@@ -51,8 +67,22 @@ public:
 	}
 
 	// Method to search the list of Cashiers to find the shortest queue.
-	void locateShortestQueue()
+	// Returns cashierNum that indicates the cashier with the shortest queue.
+	int locateShortestQueue()
 	{
+		// Todo
 
+		return cashierNum;
 	}
 };
+
+// Function Prototypes
+
+// method to build the cashier list
+// method to enqueue customers at random intervals.
+// method to dequeue customers at random intervals.
+int main()
+{
+
+	return 0;
+}
