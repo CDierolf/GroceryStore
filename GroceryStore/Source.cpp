@@ -5,84 +5,123 @@
 #include <thread>
 
 using namespace std;
-
+/*******BEGIN CUSTOMER Class********/
+// A class of customer objects to be inserted into
+// a CustomerList, which is a linked list within a CashierNode.
 class Customer {
 public:
-	int custNum = 0;					// Customer Number
+	Customer *pNext;
+	Customer() :  pNext(NULL){ }
+};
+///*******END Customer Class********/
 
-	// ctor - iterates custNum each time a customer is created.
-	Customer() : custNum(custNum++) {}
+/*******BEGIN CUSTOMERLIST Class********/
+// A Queued Linked List of Customer Objects to be embedded within a 
+// CashierNode. 
+class CustomerList {
+private:
+	Customer * pFirst, *pLast;
+	int numCust = 0;
+public:
+	// ctor
+	CustomerList() : pFirst(NULL), pLast(NULL) { }
+	// de-ctor
+	~CustomerList()
+	{
+		Customer *pCurrent = pFirst;
+		while (pCurrent != NULL)
+		{
+			Customer *pTemp = pCurrent;
+			pCurrent = pCurrent->pNext;
+			delete pTemp;
+		}
+	}
+
+	// Method to determine if the CustomerList within the CashierNode is Empty.
+	bool qIsEmpty()
+	{
+		return pFirst == NULL;
+	}
+	//---------------END qIsEmpty--------------------
+
+	// Method to pop the first customer out of the CustomerList for a given CashierNode
+	char removeFirst()
+	{
+		Customer *pTemp = pFirst;
+		if (pFirst->pNext != NULL)
+		{
+			pLast = NULL;
+		}
+		pFirst = pFirst->pNext;
+		delete pTemp;
+	}
+	//---------------END removeFirst--------------------
+
+	// Method to insert a new customer to the CustomerList within a given CashierNode
+	void insertLast(Customer *c)
+	{
+		if (qIsEmpty())
+		{
+			pFirst = c;
+		}
+		else
+		{
+			pLast->pNext = c;
+		}
+		numCust++;
+		pLast = c;
+	}	
+	//---------------END removeFirst--------------------
+
+	// Method to get the number of customers in the customer list
+	int getNumCustomers()
+	{
+		Customer *cust = pFirst;
+		while (cust != NULL)
+		{
+			numCust++;
+			cust = cust->pNext;
+		}
+		return numCust;
+	}
+	//---------------END getNumCustomers-----------------
+};
+/*******END CustomerList Class********/
+
+class CustomerQueue {
+private:
+	CustomerList custList;
+public:
+	bool isEmpty()
+	{
+		return custList.qIsEmpty();
+	}
+	void insert()
+	{
+		Customer *c = new Customer;
+		custList.insertLast(c);
+	}
+	void remove()
+	{
+		custList.removeFirst();
+	}
+
 
 };
-/*******END Customer Class********/
 
+/*******BEGIN CASHIERNODE Class********/
 class CashierNode {					// Each node represents a cashier object
 public:
 	int cashierNum;
 	int numCustomers;				// Keeps track of the number of customers in each Cashiers queue.
-	int qFront, qRear;				// Front and Rear of the arrCustomerQueue
-	int maxCustomers = 5;
-	Customer arrCustomerQueue[5];	// Each cashier has a queue array of customer objects.
 	CashierNode *pNext;				// A pointer to the next cashier object in the linked list.
-
-	// Method's to add customers to the checkout lines.
-	// Accepts the cashierNum from which the method
-	// should enqueue or dequeue.
-	void enqueueCustomer(int num)
-	{
-		Customer c;
-		for (int i = 0; i < num; i++)
-		{
-			if (qRear == maxCustomers - 1)
-			{
-				qRear = -1;
-			}
-			arrCustomerQueue[++qRear] = c;
-			numCustomers++;
-			cout << numCustomers;
-		}
-
-	}
-	// -----------End enqueueCustomer------------------
-	void dequeueCustomer()
-	{
-		Customer c;
-		c = arrCustomerQueue[qFront++];
-		if (qFront == maxCustomers)
-		{
-			qFront = 0;
-		}
-		numCustomers--;
-	}
-	// -----------End dequeueCustomer----------------
-
-	// Method to determine if the queue is empty or full.
-	// isEmpty -- Returns true if empty.
-	bool qIsEmpty()
-	{
-		return qFront == -1;
-	}
-	// -----------End qIsEmpty-----------------------
-
-	// isFull -- Returns true if full.
-	bool qIsFull()
-	{
-		return qFront == maxCustomers - 1;
-	}
-	// -----------End qIsFull------------------------
-	// Method to return the number of customers current in a node
-	// Accepts the cashierNum for which the method returns the
-	// number of customers in its queue.
-	int getNumCustomers()
-	{
-		return numCustomers;
-	}
-	// -----------End getNumCustomers----------------
 };
-
 /*******END CashierNode Class********/
 
-
+/*******BEGIN CASHIERLIST Class********/
+// CashierList Class creates a linked list of CashierNodes
+// Within the CashierNodes exists a linked list of customers
+// in the form of a queue.
 class CashierList {					// A list of cashier objects as a linked list.
 private:
 	CashierNode *pHead, *pTail;		// Pointers to the head and tail of the linked list.
@@ -105,7 +144,6 @@ public:
 				pHead = pTemp;
 				pTail = pTemp;
 				pTemp = NULL;
-
 			}
 			else                        // Otherwise, place the new node after the previous tail.
 			{
@@ -114,48 +152,60 @@ public:
 			}
 		}
 	}
+	// -----------End createCashierNode----------------
+
 	// Helper method to add customer to the CashierNode's queue.
 	// Accepts an integer.
 	// Initial customer adding is 4, each subsequent calling is 1.
-	void addCust(int num)
+	void addCust(int num, int cashier)
 	{
-		CashierNode cn;
-		for (int i = 0; i < num; i++)
+		CustomerQueue *cq = new CustomerQueue;
+		CashierNode *cn = pHead;
+		
+		while (cn != NULL)
 		{
-			cn.enqueueCustomer(num);
+			if (cn->cashierNum == cashier)	// Cashier found
+			{
+				for (int i = 0; i < num; i++)
+				{
+					cq->insert(); // Add num Cashiers
+					cout << "Customer: " << i << " added\n";
+				}
+			}
+			else
+			{
+				cn = cn->pNext; // advance forward
+			}
 		}
+		return; // Cashier not found
+
+		
 	}
+	// -----------End addCust----------------
+
 	// Helper method to remove customer from the CashierNode's queue.
 	void removeCust()
 	{
-		CashierNode *cn;
-		cn->dequeueCustomer();
+
 	}
+	// -----------End removeCust----------------
+
 	// Helper method to get the number of customers for each cashier
 	int getNumCustomers()
 	{
-		CashierNode cn;
-		return cn.getNumCustomers();
+
 	}
+	// -----------End getNumCustomers----------------
 
 	// Method to search the list of Cashiers to find the shortest queue.
 	// Returns cashierNum that indicates the cashier with the shortest queue.
 	int locateShortestQueue()
 	{
-		CashierNode *pCurrent = pHead;
-		int cn, shortestNode;
-		shortestNode = pCurrent->numCustomers;
-		while (pCurrent != NULL)
-		{
-			if (pCurrent->numCustomers < shortestNode)
-			{
-				shortestNode = pCurrent->numCustomers;
-				cn = pCurrent->cashierNum;
-			}
-		}
-		return cn;
+
 	}
-	// Method to get the number of cashier nodes
+	// -----------End locateShortestQueue--------------
+
+	// Method to get the number of cashier nodes -- TESTING
 	int getCount()
 	{
 		int count = 0;
@@ -167,37 +217,62 @@ public:
 		}
 		return count;
 	}
+	// -----------End getCount----------------
+
+	// Method to display the cashiers and the number of customers
+	void displayListCustomers()
+	{
+		CashierNode *pCurrent = pHead;
+		setNumCustomers();
+		while (pCurrent != NULL)
+		{
+
+			cout << "Cashier Number " << pCurrent->cashierNum << ": ";
+			cout << "Customers: " << pCurrent->numCustomers << endl;
+			pCurrent = pCurrent->pNext;
+		}
+		
+	}
+	// -----------End displayListCustomers----------------
+
+	// Method to set the number of customers in the CustomerList
+	void setNumCustomers()
+	{
+		CustomerList *cl = new CustomerList;
+		CashierNode *cn = new CashierNode;
+		cn->numCustomers = cl->getNumCustomers();	
+	}
 };
 /*******END CashierList Class********/
 
-// Function Prototypes
 
-// method to build the cashier list
-void buildCashiers(int n);
-// method to enqueue customers at random intervals.
-// method to dequeue customers at random intervals.
-// method to display the action. 
+//---------------MAIN------------------//
 int main()
 {
 	// Build a list of cashier nodes.
-	CashierList c;
-	c.createCashierNode(9);
-	cout << c.getCount();
-	
-	
+	CashierList *c;
+	c = new CashierList;
+	c->createCashierNode(9);
+	c->addCust(5, 10);
+	c->displayListCustomers();
 
-
-	
-	//chrono::milliseconds interval(50); // Clear screen every 50ms
+	//chrono::milliseconds interval(500); // Clear screen every 50ms
+	//c->displayListCustomers();
 	//system("CLS");
+	//
+	//while (true)
+	//{
+
+	//}
+
+	
+
+
+	
+
 
 		
 	
 
 	return 0;
-}
-
-void buildCashiers(int n)
-{
-
 }
