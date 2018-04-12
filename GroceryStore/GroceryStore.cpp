@@ -10,8 +10,10 @@ using namespace std;
 // a CustomerList, which is a linked list within a CashierNode.
 class Customer {
 public:
+	char cusrIdentifier = 'O';
 	Customer *pNext;
-	Customer() :  pNext(NULL){ }
+	Customer() : pNext(NULL) { }
+
 };
 ///*******END Customer Class********/
 
@@ -54,6 +56,7 @@ public:
 		}
 		pFirst = pFirst->pNext;
 		delete pTemp;
+
 	}
 	//---------------END removeFirst--------------------
 
@@ -63,14 +66,15 @@ public:
 		if (qIsEmpty())
 		{
 			pFirst = c;
+
 		}
 		else
 		{
 			pLast->pNext = c;
 		}
-		numCust++;
 		pLast = c;
-	}	
+		numCust++;
+	}
 	//---------------END removeFirst--------------------
 
 	// Method to get the number of customers in the customer list
@@ -113,7 +117,7 @@ public:
 class CashierNode {					// Each node represents a cashier object
 public:
 	int cashierNum;
-	int numCustomers;				// Keeps track of the number of customers in each Cashiers queue.
+	int numCustomers = 0;				// Keeps track of the number of customers in each Cashiers queue.
 	CashierNode *pNext;				// A pointer to the next cashier object in the linked list.
 };
 /*******END CashierNode Class********/
@@ -124,7 +128,7 @@ public:
 // in the form of a queue.
 class CashierList {					// A list of cashier objects as a linked list.
 private:
-	CashierNode *pHead, *pTail;		// Pointers to the head and tail of the linked list.
+	CashierNode * pHead, *pTail;		// Pointers to the head and tail of the linked list.
 
 public:
 	// ctor
@@ -159,27 +163,28 @@ public:
 	// Initial customer adding is 4, each subsequent calling is 1.
 	void addCust(int num, int cashier)
 	{
-		CustomerQueue *cq = new CustomerQueue;
+		CustomerQueue cq;
 		CashierNode *cn = pHead;
-		
 		while (cn != NULL)
 		{
-			if (cn->cashierNum == cashier)	// Cashier found
+			if (cn->cashierNum == cashier)
 			{
 				for (int i = 0; i < num; i++)
 				{
-					cq->insert(); // Add num Cashiers
-					cout << "Customer: " << i << " added\n";
+					cq.insert();
+					cn->numCustomers++;
+					
 				}
+				return;
 			}
-			else
+			else 
 			{
-				cn = cn->pNext; // advance forward
+				cn = cn->pNext;
 			}
 		}
-		return; // Cashier not found
+		return;
 
-		
+
 	}
 	// -----------End addCust----------------
 
@@ -223,25 +228,21 @@ public:
 	void displayListCustomers()
 	{
 		CashierNode *pCurrent = pHead;
-		setNumCustomers();
 		while (pCurrent != NULL)
 		{
 
 			cout << "Cashier Number " << pCurrent->cashierNum << ": ";
-			cout << "Customers: " << pCurrent->numCustomers << endl;
+			cout << "Customers: "; 
+			for (int i = 0; i < pCurrent->numCustomers; i++)
+			{
+				cout << 'O' << " ";
+			}
+			cout << endl;
 			pCurrent = pCurrent->pNext;
 		}
-		
+
 	}
 	// -----------End displayListCustomers----------------
-
-	// Method to set the number of customers in the CustomerList
-	void setNumCustomers()
-	{
-		CustomerList *cl = new CustomerList;
-		CashierNode *cn = new CashierNode;
-		cn->numCustomers = cl->getNumCustomers();	
-	}
 };
 /*******END CashierList Class********/
 
@@ -253,7 +254,7 @@ int main()
 	CashierList *c;
 	c = new CashierList;
 	c->createCashierNode(9);
-	c->addCust(5, 10);
+	c->addCust(5, 3);
 	c->displayListCustomers();
 
 	//chrono::milliseconds interval(500); // Clear screen every 50ms
@@ -265,14 +266,14 @@ int main()
 
 	//}
 
-	
 
 
-	
 
 
-		
-	
+
+
+
+
 
 	return 0;
 }
