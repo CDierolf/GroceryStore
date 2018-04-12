@@ -10,7 +10,6 @@ using namespace std;
 // a CustomerList, which is a linked list within a CashierNode.
 class Customer {
 public:
-	char cusrIdentifier = 'O';
 	Customer *pNext;
 	Customer() : pNext(NULL) { }
 
@@ -267,46 +266,44 @@ public:
 };
 /*******END CashierList Class********/
 
+// Function Prototypes
+// Method to randomly insert and remove customers
+void inOutRandom(CashierList *);
+
 
 //---------------MAIN------------------//
 int main()
 {
 	// Build a list of cashier nodes.
+
 	CashierList *c;
 	c = new CashierList;
 	c->createCashierNode(9);
-	c->addCust(5, 3);
-	c->addCust(3, 4);
-	c->addCust(2, 1);
-	c->addCust(1, 5);
-	c->addCust(6, 2);
-	c->addCust(7, 6);
-	c->addCust(10, 7);
-	c->addCust(4, 8);
-	c->addCust(8, 9);
+	while (true) // loop FOR-EV-VERR
+	{
+		chrono::milliseconds interval(500); // Clear screen every 50ms
 
-	c->removeCust(1);
-	c->removeCust(1);
-	c->displayListCustomers();
-	cout << "\nShortest Queue: " << c->locateShortestQueue() << endl;
+		//c->addCust(3, 4);
+		inOutRandom(c);
+		//c->removeCust(4);
+
+
+		//c->removeCust(1);
+		//c->removeCust(1);
+		c->displayListCustomers();
+		cout << "\nShortest Queue: " << c->locateShortestQueue() << endl;
+		system("CLS");
+	}
 
 	//chrono::milliseconds interval(500); // Clear screen every 50ms
 	//c->displayListCustomers();
 	//system("CLS");
 	//
-	//while (true)
-	//{
-
-	//}
-
-
-
-
-
-
-
-
-
-
 	return 0;
+}
+
+void inOutRandom(CashierList *c)
+{
+	int randCashier = (rand() % 9) + 1;
+	c->addCust(1, randCashier);
 }
