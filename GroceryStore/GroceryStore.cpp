@@ -47,16 +47,15 @@ public:
 	//---------------END qIsEmpty--------------------
 
 	// Method to pop the first customer out of the CustomerList for a given CashierNode
-	char removeFirst()
+	void removeFirst()
 	{
-		Customer *pTemp = pFirst;
-		if (pFirst->pNext != NULL)
+		if (pFirst != NULL)
 		{
-			pLast = NULL;
+			Customer *temp = pFirst->pNext;
+			delete pFirst;
+			pFirst = temp;
+			--numCust;
 		}
-		pFirst = pFirst->pNext;
-		delete pTemp;
-
 	}
 	//---------------END removeFirst--------------------
 
@@ -66,7 +65,6 @@ public:
 		if (qIsEmpty())
 		{
 			pFirst = c;
-
 		}
 		else
 		{
@@ -159,8 +157,9 @@ public:
 	// -----------End createCashierNode----------------
 
 	// Helper method to add customer to the CashierNode's queue.
-	// Accepts an integer.
-	// Initial customer adding is 4, each subsequent calling is 1.
+	// Accepts an integer for the number of customers to be added,
+	// and an integer for the cashier number to insert the customers.
+	// Inserts into the shortest queue located by locateShortestQueue.
 	void addCust(int num, int cashier)
 	{
 		CustomerQueue cq;
@@ -173,7 +172,6 @@ public:
 				{
 					cq.insert();
 					cn->numCustomers++;
-					
 				}
 				return;
 			}
@@ -182,31 +180,55 @@ public:
 				cn = cn->pNext;
 			}
 		}
-		return;
-
-
+		return; // Not found
 	}
 	// -----------End addCust----------------
 
 	// Helper method to remove customer from the CashierNode's queue.
-	void removeCust()
+	void removeCust(int cashier)
 	{
+		CustomerQueue cq;
+		CashierNode *cn = pHead;
+		while (cn != NULL)
+		{
+			if (cn->cashierNum == cashier)
+			{
+				cq.remove();
+				cn->numCustomers--;
+				return;
+			}
+			else
+			{
+				cn = cn->pNext;
+			}
+
+		}
+		return; // Not found
 
 	}
 	// -----------End removeCust----------------
-
-	// Helper method to get the number of customers for each cashier
-	int getNumCustomers()
-	{
-
-	}
-	// -----------End getNumCustomers----------------
 
 	// Method to search the list of Cashiers to find the shortest queue.
 	// Returns cashierNum that indicates the cashier with the shortest queue.
 	int locateShortestQueue()
 	{
-
+		CashierNode *pCurrent = pHead;
+		int shortestQueue = pHead->numCustomers;
+		while (pCurrent != NULL)
+		{
+			if (pCurrent->numCustomers < shortestQueue)	// Any queue with numCustomers > 0
+			{
+				return pCurrent->cashierNum;
+			}
+			if (pCurrent->numCustomers == 0)	// Any queue with numCustomers == 0
+			{
+				return pCurrent->cashierNum;
+			}
+			else
+			{
+				pCurrent = pCurrent->pNext;	// Look for smaller queues.
+			}
+		}
 	}
 	// -----------End locateShortestQueue--------------
 
@@ -230,17 +252,16 @@ public:
 		CashierNode *pCurrent = pHead;
 		while (pCurrent != NULL)
 		{
-
 			cout << "Cashier Number " << pCurrent->cashierNum << ": ";
 			cout << "Customers: "; 
-			for (int i = 0; i < pCurrent->numCustomers; i++)
+			// Print a O for every customer to simulate the transition of customers through the queue
+			for (int i = 0; i < pCurrent->numCustomers; i++) 
 			{
 				cout << 'O' << " ";
 			}
 			cout << endl;
 			pCurrent = pCurrent->pNext;
 		}
-
 	}
 	// -----------End displayListCustomers----------------
 };
@@ -255,7 +276,19 @@ int main()
 	c = new CashierList;
 	c->createCashierNode(9);
 	c->addCust(5, 3);
+	c->addCust(3, 4);
+	c->addCust(2, 1);
+	c->addCust(1, 5);
+	c->addCust(6, 2);
+	c->addCust(7, 6);
+	c->addCust(10, 7);
+	c->addCust(4, 8);
+	c->addCust(8, 9);
+
+	c->removeCust(1);
+	c->removeCust(1);
 	c->displayListCustomers();
+	cout << "\nShortest Queue: " << c->locateShortestQueue() << endl;
 
 	//chrono::milliseconds interval(500); // Clear screen every 50ms
 	//c->displayListCustomers();
