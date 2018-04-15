@@ -19,6 +19,9 @@ public:
 /*******BEGIN CUSTOMERLIST Class********/
 // A Queued Linked List of Customer Objects to be embedded within a 
 // CashierNode. 
+// Parameters: int numCust -- Keeps track of the number of customers 
+//                            in each cashier queue.
+/////////////
 class CustomerList {
 private:
 	Customer * pFirst, *pLast;
@@ -89,32 +92,67 @@ public:
 };
 /*******END CustomerList Class********/
 
+/*******BEGIN CustomerQueue Class********/
+// Handles the queue specifications for the Customer
+// List class. 
+// PARAMETERS: int maxCust -- The maximum combined customers
+//                            within the program.
+////////////
+
 class CustomerQueue {
 private:
 	CustomerList custList;
+	int maxCust = 180;
 public:
+	// Helper method for the CustomerList qIsEmpty() method.
 	bool isEmpty()
 	{
 		return custList.qIsEmpty();
 	}
+	//---------------END isEmpty--------------------
+
+	// Helper method for the CustomerList insertLast() method.
 	void insert()
 	{
 		Customer *c = new Customer;
 		custList.insertLast(c);
 	}
+	//---------------END insert--------------------
+
+	// Helper method for the CustomerLIst removeFirst() method.
 	void remove()
 	{
 		custList.removeFirst();
 	}
+	//---------------END remove--------------------
+
+	// Method to return the maximum total customers for the program.
+	int getMaxCust()
+	{
+		return maxCust;
+	}
+	//---------------END getMaxCust--------------------
+
+	// Method to set the maxCust parameter.
+	void setMaxCust(int numCust)
+	{
+		maxCust = numCust;
+	}
+	//---------------END setMaxCust--------------------
 
 
 };
 
 /*******BEGIN CASHIERNODE Class********/
+// A node for cashiers.
+// PARAMETERS: int cashierNum -- the cashier node identifier.
+//             int numCustomers -- the number of customers in the cashiers
+//								  CustomerQueue.
+////////////
 class CashierNode {					// Each node represents a cashier object
 public:
 	int cashierNum;
-	int numCustomers = 0;				// Keeps track of the number of customers in each Cashiers queue.
+	int numCustomers = 0;			// Keeps track of the number of customers in each Cashiers queue.
 	CashierNode *pNext;				// A pointer to the next cashier object in the linked list.
 };
 /*******END CashierNode Class********/
@@ -165,7 +203,7 @@ public:
 		CashierNode *cn = pHead;
 		while (cn != NULL)
 		{
-			if (cn->cashierNum == cashier)
+			if (cn->cashierNum == cashier && cn->numCustomers < cq.getMaxCust()) // verify maxCust
 			{
 				for (int i = 0; i < num; i++)
 				{
@@ -200,10 +238,8 @@ public:
 			{
 				cn = cn->pNext;
 			}
-
 		}
 		return; // Not found
-
 	}
 	// -----------End removeCust----------------
 
@@ -212,22 +248,19 @@ public:
 	int locateShortestQueue()
 	{
 		CashierNode *pCurrent = pHead;
-		int shortestQueue = pHead->numCustomers;
+
+		int queueNum = 20;
+		int cashier = 0;
 		while (pCurrent != NULL)
 		{
-			if (pCurrent->numCustomers < shortestQueue)	// Any queue with numCustomers > 0
+			if (pCurrent->numCustomers < queueNum)
 			{
-				return pCurrent->cashierNum;
+				queueNum = pCurrent->numCustomers;
+				cashier = pCurrent->cashierNum;
 			}
-			if (pCurrent->numCustomers == 0)	// Any queue with numCustomers == 0
-			{
-				return pCurrent->cashierNum;
-			}
-			else
-			{
-				pCurrent = pCurrent->pNext;	// Look for smaller queues.
-			}
+			pCurrent = pCurrent->pNext;
 		}
+		return cashier;
 	}
 	// -----------End locateShortestQueue--------------
 
@@ -263,47 +296,64 @@ public:
 		}
 	}
 	// -----------End displayListCustomers----------------
+
+	int getTotalCustomers()
+	{
+		CashierNode *pCurrent = pHead;
+		int totCust = 0;
+		while (pCurrent != NULL)
+		{
+			totCust += pCurrent->numCustomers;
+			pCurrent = pCurrent->pNext;
+		}
+		return totCust;
+	}
 };
 /*******END CashierList Class********/
 
 // Function Prototypes
-// Method to randomly insert and remove customers
 void inOutRandom(CashierList *);
-
 
 //---------------MAIN------------------//
 int main()
 {
-	// Build a list of cashier nodes.
+	int maximumCustomers, cashiers;
+	cout << "This program simulates the checkout lines of a\n";
+	cout << "retail store on black friday.\n\n";
+	cout << "Enter the maximum total customers to be reached\n";
+	cout << "before armeggedon breaks out: ";
+	cin >> maximumCustomers;
+	cout << "\n\nEnter the number of cashiers on staff for black friday: ";
+	cin >> cashiers;
 
+	// Build a list of cashier nodes.
 	CashierList *c;
 	c = new CashierList;
-	c->createCashierNode(9);
-	while (true) // loop FOR-EV-VERR
+	c->createCashierNode(cashiers);
+	cout << c->getTotalCustomers();
+	while (c->getTotalCustomers() < maximumCustomers) // loop FOR-EV-VERR
 	{
-		chrono::milliseconds interval(500); // Clear screen every 50ms
-
-		//c->addCust(3, 4);
+		chrono::milliseconds interval(25); // Clear screen every 50ms
 		inOutRandom(c);
-		//c->removeCust(4);
-
-
-		//c->removeCust(1);
-		//c->removeCust(1);
 		c->displayListCustomers();
-		cout << "\nShortest Queue: " << c->locateShortestQueue() << endl;
+		
+		this_thread::sleep_for(interval);
 		system("CLS");
 	}
-
-	//chrono::milliseconds interval(500); // Clear screen every 50ms
-	//c->displayListCustomers();
-	//system("CLS");
-	//
 	return 0;
 }
 
+// Method to insert and remove customers.
+// Inserts based on the shortest queue.
 void inOutRandom(CashierList *c)
 {
-	int randCashier = (rand() % 9) + 1;
-	c->addCust(1, randCashier);
+	int shortestQueue = c->locateShortestQueue();
+	cout << "Shortest Queue: Cashier #: " << shortestQueue << endl;
+	cout << "Total Customers: " << c->getTotalCustomers() << endl << endl;
+	int randRemove = (rand() % 5);
+
+	c->addCust(1, shortestQueue);
+	c->removeCust(randRemove);
 }
+// -----------End inOutRandom--------------
+
