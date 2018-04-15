@@ -312,7 +312,7 @@ public:
 /*******END CashierList Class********/
 
 // Function Prototypes
-void inOutRandom(CashierList *);
+void inOutRandom(CashierList *, int);
 
 //---------------MAIN------------------//
 int main()
@@ -333,24 +333,30 @@ int main()
 	cout << c->getTotalCustomers();
 	while (c->getTotalCustomers() < maximumCustomers) // loop FOR-EV-VERR
 	{
-		chrono::milliseconds interval(25); // Clear screen every 50ms
-		inOutRandom(c);
-		c->displayListCustomers();
-		
+		chrono::milliseconds interval(50); // Clear screen every 50ms
+		while (true)
+		{
+			chrono::seconds addCustInterval(rand() % 2); // Clear screen every 50ms
+			inOutRandom(c, cashiers);
+			c->displayListCustomers();
+			this_thread::sleep_for(addCustInterval);
+			system("CLS");
+		}
 		this_thread::sleep_for(interval);
-		system("CLS");
 	}
 	return 0;
 }
 
 // Method to insert and remove customers.
 // Inserts based on the shortest queue.
-void inOutRandom(CashierList *c)
+void inOutRandom(CashierList *c, int numCashier)
 {
+
 	int shortestQueue = c->locateShortestQueue();
-	cout << "Shortest Queue: Cashier #: " << shortestQueue << endl;
+	cout << "\nShortest Queue: Cashier #: " << shortestQueue << endl;
 	cout << "Total Customers: " << c->getTotalCustomers() << endl << endl;
-	int randRemove = (rand() % 5);
+	int randRemove = (rand() % numCashier + 5); // Make modulus slightly higher so that
+												// a customer isn't removed at every pass.
 
 	c->addCust(1, shortestQueue);
 	c->removeCust(randRemove);
