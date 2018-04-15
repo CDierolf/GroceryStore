@@ -320,26 +320,35 @@ int main()
 	int maximumCustomers, cashiers;
 	cout << "This program simulates the checkout lines of a\n";
 	cout << "retail store on black friday.\n\n";
+	cout << "Customers are added and removed every 0 to 5 seconds.\n";
+	cout << "The screen is refreshed every 50ms\n\n";
 	cout << "Enter the maximum total customers to be reached\n";
 	cout << "before armeggedon breaks out: ";
 	cin >> maximumCustomers;
-	cout << "\n\nEnter the number of cashiers on staff for black friday: ";
+	cout << "\nEnter the number of cashiers on staff for black friday: ";
 	cin >> cashiers;
 
 	// Build a list of cashier nodes.
 	CashierList *c;
 	c = new CashierList;
 	c->createCashierNode(cashiers);
-	cout << c->getTotalCustomers();
-	while (c->getTotalCustomers() < maximumCustomers) // loop FOR-EV-VERR
+
+	// Loop until the maximum number of customers are reached.
+	while (c->getTotalCustomers() < maximumCustomers)
 	{
+		// clear the screen every 50ms.
 		chrono::milliseconds interval(50); // Clear screen every 50ms
-		while (true)
+		while (true) // Internally terminated. 
 		{
-			chrono::seconds addCustInterval(rand() % 2); // Clear screen every 50ms
+			// The interval at which customers are added and removed. 0-5 seconds randomly.
+			chrono::seconds customerInterval(rand() % 5);
+			// Send the info to inOutRandom. Modulus for random cashier removal is based on the number of cashiers.
 			inOutRandom(c, cashiers);
+			// Display the cashiers and their customers.
 			c->displayListCustomers();
-			this_thread::sleep_for(addCustInterval);
+			// Sleep
+			this_thread::sleep_for(customerInterval);
+			// Clear screen
 			system("CLS");
 		}
 		this_thread::sleep_for(interval);
@@ -355,11 +364,11 @@ void inOutRandom(CashierList *c, int numCashier)
 	int shortestQueue = c->locateShortestQueue();
 	cout << "\nShortest Queue: Cashier #: " << shortestQueue << endl;
 	cout << "Total Customers: " << c->getTotalCustomers() << endl << endl;
-	int randRemove = (rand() % numCashier + 5); // Make modulus slightly higher so that
-												// a customer isn't removed at every pass.
+	// Make modulus slightly higher so that a customer isn't removed at every pass.
+	int randRemove = (rand() % numCashier + 5); 
 
-	c->addCust(1, shortestQueue);
-	c->removeCust(randRemove);
+	c->addCust(1, shortestQueue);	// Add a customer to the shortest queue.
+	c->removeCust(randRemove);		// Remove customer based on randRemove.
 }
 // -----------End inOutRandom--------------
 
