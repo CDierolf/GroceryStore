@@ -5,7 +5,12 @@
 #include <thread>
 
 /* Author: Christopher K. Dierolf
-   Date: 
+   Date:   4/14/2018
+   Description: This program simulates a grocery store checkout line.
+   		The user may enter the number of desired cashiers. 
+		Upon execution, a new "customer" will enter a random "cashier line"
+		(queue) and a random customer will leave a random cashier line.
+*/
 
 using namespace std;
 /*******BEGIN CUSTOMER Class********/
