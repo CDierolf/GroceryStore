@@ -4,6 +4,9 @@
 #include <chrono>
 #include <thread>
 
+/* Author: Christopher K. Dierolf
+   Date: 
+
 using namespace std;
 /*******BEGIN CUSTOMER Class********/
 // A class of customer objects to be inserted into
